@@ -21,8 +21,13 @@ def test_added_column():
 
     changes = compare_schemas(schema_v1, schema_v2)
 
-    assert "Added column: messages.timestamp" in changes
-    
+    assert {
+        "type": "added_column",
+        "table": "messages",
+        "column": "timestamp"
+    } in changes
+
+
 def test_removed_column():
     schema_v1 = {
         "messages": {
@@ -41,63 +46,65 @@ def test_removed_column():
 
     changes = compare_schemas(schema_v1, schema_v2)
 
-    assert "Removed column: messages.message" in changes
-    
+    assert {
+        "type": "removed_column",
+        "table": "messages",
+        "column": "message"
+    } in changes
+
+
 def test_added_table():
     schema_v1 = {
         "messages": {
-            "id": "INTEGER",
-            "sender": "TEXT",
-            "message": "TEXT"
+            "id": "INTEGER"
         }
     }
 
     schema_v2 = {
         "messages": {
-            "id": "INTEGER",
-            "sender": "TEXT",
-            "message": "TEXT"
+            "id": "INTEGER"
         },
         "users": {
-            "id": "INTEGER",
-            "name": "TEXT"
+            "id": "INTEGER"
         }
     }
 
     changes = compare_schemas(schema_v1, schema_v2)
 
-    assert "Added table: users" in changes
-    
+    assert {
+        "type": "added_table",
+        "table": "users"
+    } in changes
+
+
 def test_removed_table():
     schema_v1 = {
         "messages": {
-            "id": "INTEGER",
-            "sender": "TEXT",
-            "message": "TEXT"
+            "id": "INTEGER"
         },
         "users": {
-            "id": "INTEGER",
-            "name": "TEXT"
+            "id": "INTEGER"
         }
     }
 
     schema_v2 = {
         "messages": {
-            "id": "INTEGER",
-            "sender": "TEXT",
-            "message": "TEXT"
+            "id": "INTEGER"
         }
     }
 
     changes = compare_schemas(schema_v1, schema_v2)
 
-    assert "Removed table: users" in changes
-    
+    assert {
+        "type": "removed_table",
+        "table": "users"
+    } in changes
+
+
 def test_changed_column_type():
     schema_v1 = {
         "messages": {
             "id": "INTEGER",
-            "sender": "TEXT",
             "message": "TEXT"
         }
     }
@@ -105,11 +112,16 @@ def test_changed_column_type():
     schema_v2 = {
         "messages": {
             "id": "INTEGER",
-            "sender": "TEXT",
             "message": "INTEGER"
         }
     }
 
     changes = compare_schemas(schema_v1, schema_v2)
 
-    assert "Changed column type: messages.message (TEXT → INTEGER)" in changes
+    assert {
+        "type": "changed_column_type",
+        "table": "messages",
+        "column": "message",
+        "old_type": "TEXT",
+        "new_type": "INTEGER"
+    } in changes
