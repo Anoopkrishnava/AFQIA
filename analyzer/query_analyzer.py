@@ -156,21 +156,7 @@ def check_query_impact(query, changes):
 
     return impacted
     
-def get_impact_level(query, changes):
-    impacted = check_query_impact(query, changes)
 
-    if not impacted:
-        return "NONE"
-
-    for change in impacted:
-        if change["type"] in [
-            "removed_table",
-            "removed_column",
-            "changed_column_type"
-        ]:
-            return "HIGH"
-
-    return "LOW"
     
 
 def get_execution_risk(query, changes):
@@ -194,13 +180,12 @@ def get_execution_risk(query, changes):
 def analyze_query_impact(query, changes):
     analysis = analyze_query(query)
     impacted = check_query_impact(query, changes)
-    impact_level = get_impact_level(query, changes)
-    execution_risk = get_execution_risk(query, changes)
+
+    affected = len(impacted) > 0
 
     return {
         "tables": analysis["tables"],
         "columns": analysis["columns"],
         "impacted_changes": impacted,
-        "impact_level": impact_level,
-        "execution_risk": execution_risk
+        "affected": affected
     }

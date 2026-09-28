@@ -1,7 +1,6 @@
 from analyzer.query_analyzer import (
     analyze_query,
     check_query_impact,
-    get_impact_level,
     get_execution_risk,
     analyze_query_impact
 )
@@ -91,54 +90,6 @@ def test_table_alias():
     assert "message" in result["columns"]
 
 
-def test_high_impact_removed_column():
-    query = "SELECT message FROM messages;"
-
-    changes = [
-        {
-            "type": "removed_column",
-            "table": "messages",
-            "column": "message"
-        }
-    ]
-
-    result = get_impact_level(query, changes)
-
-    assert result == "HIGH"
-
-
-def test_high_impact_changed_type():
-    query = "SELECT sender FROM messages;"
-
-    changes = [
-        {
-            "type": "changed_column_type",
-            "table": "messages",
-            "column": "sender",
-            "old_type": "TEXT",
-            "new_type": "INTEGER"
-        }
-    ]
-
-    result = get_impact_level(query, changes)
-
-    assert result == "HIGH"
-
-
-def test_no_impact_unrelated_change():
-    query = "SELECT sender, message FROM messages;"
-
-    changes = [
-        {
-            "type": "added_column",
-            "table": "messages",
-            "column": "timestamp"
-        }
-    ]
-
-    result = get_impact_level(query, changes)
-
-    assert result == "NONE"
     
 def test_breaking_removed_column():
     query = "SELECT message FROM messages;"
@@ -220,8 +171,8 @@ def test_complete_query_impact_analysis():
         "column": "message"
     } in result["impacted_changes"]
 
-    assert result["impact_level"] == "HIGH"
-    assert result["execution_risk"] == "BREAKING"
+    
+    assert result["affected"] is True
     
 def test_query_with_where_condition():
     query = """
@@ -263,8 +214,8 @@ def test_query_affected_by_removed_table():
 
     result = analyze_query_impact(query, changes)
 
-    assert result["impact_level"] == "HIGH"
-    assert result["execution_risk"] == "BREAKING"
+    
+    assert result["affected"] is True
     
 def test_query_unaffected_by_unrelated_change():
     query = """
@@ -283,8 +234,7 @@ def test_query_unaffected_by_unrelated_change():
     result = analyze_query_impact(query, changes)
 
     assert result["impacted_changes"] == []
-    assert result["impact_level"] == "NONE"
-    assert result["execution_risk"] == "NONE"
+    assert result["affected"] is False
     
 def test_query_affected_by_changed_column_type():
     query = """
@@ -304,8 +254,8 @@ def test_query_affected_by_changed_column_type():
 
     result = analyze_query_impact(query, changes)
 
-    assert result["impact_level"] == "HIGH"
-    assert result["execution_risk"] == "AFFECTED"
+    
+    assert result["affected"] is True
     
 def test_query_with_join():
     query = """
@@ -337,8 +287,7 @@ def test_join_query_affected_by_removed_table():
     result = analyze_query_impact(query, changes)
 
     assert result["tables"] == ["messages", "users"]
-    assert result["impact_level"] == "HIGH"
-    assert result["execution_risk"] == "BREAKING"
+    assert result["affected"] is True
     
 def test_join_query_affected_by_removed_join_column():
     query = """
@@ -357,8 +306,8 @@ def test_join_query_affected_by_removed_join_column():
 
     result = analyze_query_impact(query, changes)
 
-    assert result["impact_level"] == "HIGH"
-    assert result["execution_risk"] == "BREAKING"
+    
+    assert result["affected"] is True
     
 def test_join_query_affected_by_removed_right_join_column():
     query = """
@@ -377,8 +326,8 @@ def test_join_query_affected_by_removed_right_join_column():
 
     result = analyze_query_impact(query, changes)
 
-    assert result["impact_level"] == "HIGH"
-    assert result["execution_risk"] == "BREAKING"
+    
+    assert result["affected"] is True
     
 def test_join_query_unaffected_by_unrelated_column():
     query = """
@@ -398,8 +347,7 @@ def test_join_query_unaffected_by_unrelated_column():
     result = analyze_query_impact(query, changes)
 
     assert result["impacted_changes"] == []
-    assert result["impact_level"] == "NONE"
-    assert result["execution_risk"] == "NONE"
+    assert result["affected"] is False
     
 def test_query_with_multiple_schema_changes():
     query = """
@@ -430,7 +378,7 @@ def test_query_with_multiple_schema_changes():
     result = analyze_query_impact(query, changes)
 
     assert len(result["impacted_changes"]) == 2
-    assert result["impact_level"] == "HIGH"
-    assert result["execution_risk"] == "BREAKING"
+
+    assert result["affected"] is True
     
 
