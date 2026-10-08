@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AFQIA - Android Forensic Query Impact Analysis</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 40px 25px;
+        }
+
+        /* Header */
+
+        .header {
+            background-color: #0f172a;
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+
+        /* Main card */
+
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 22px;
+        }
+
+        /* Database section */
+
+        .database-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-box {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 18px;
+            background-color: #f8fafc;
+        }
+
+        .input-box label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            font-size: 14px;
+        }
+
+        /* Query */
+
+        .query-section {
+            margin-top: 25px;
+        }
+
+        .query-section label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: monospace;
+            font-size: 14px;
+            background-color: #f8fafc;
+        }
+
+        textarea:focus,
+        input[type="file"]:focus {
+            outline: 2px solid #2563eb;
+            outline-offset: 1px;
+        }
+
+        /* Button */
+
+        .button-container {
+            margin-top: 25px;
+        }
+
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 12px 25px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Report */
+
+        .report-title {
+            margin-top: 35px;
+            margin-bottom: 15px;
+        }
+
+        .report {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+
+        .report pre {
+            margin: 0;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            color: #334155;
+        }
+
+        .report-card {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .report-section {
+            padding: 25px 30px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .report-section:last-child {
+            border-bottom: none;
+        }
+
+        .report-section h3 {
+            margin: 0 0 18px;
+            font-size: 17px;
+            color: #0f172a;
+        }
+
+        .info-grid,
+        .dependency-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            display: block;
+            font-family: monospace;
+            color: #334155;
+        }
+
+        .query-display {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            padding: 15px;
+            font-family: monospace;
+            color: #334155;
+            overflow-x: auto;
+        }
+
+        .change-item {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .change-item span {
+            display: inline-block;
+            margin-left: 20px;
+            color: #475569;
+        }
+
+        .dependency-grid ul {
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+
+        .dependency-grid li {
+            margin-bottom: 6px;
+            font-family: monospace;
+        }
+
+        .result-box,
+        .status-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .result-label,
+        .status-label {
+            font-weight: bold;
+        }
+
+        .result-value,
+        .status-value {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .affected,
+        .fail {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        .not-affected,
+        .success {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #15803d;
+        }
+
+        .review {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #b45309;
+        }
+
+        .element-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .element {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .no-data {
+            color: #64748b;
+        }
+
+        .final-section {
+            background-color: #f8fafc;
+        }
+
+        .final-result {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        @media (max-width: 700px) {
+
+            .info-grid,
+            .dependency-grid {
+                grid-template-columns: 1fr;
+            }
+
+        .change-item span {
+            display: block;
+            margin: 6px 0 0;
+        }
+
+        }
+
+        /* Footer */
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 30px;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 700px) {
+
+            .container {
+                padding: 20px 15px;
+            }
+
+            .database-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+        .field-error {
+            margin-top: 8px;
+            padding: 8px 10px;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            color: #b91c1c;
+            font-size: 13px;
+        }
+        /* Database Schema Accordion */
+
+        details {
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background-color: #ffffff;
+        }
+
+        details summary {
+            padding: 12px 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            cursor: pointer;
+            list-style-position: inside;
+        }
+
+        details summary:hover {
+            background-color: #f8fafc;
+        }
+
+        .schema-container {
+            display: flex;
+            gap: 20px;
+            padding: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .schema-box {
+            flex: 1;
+            padding: 15px;
+            background-color: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .schema-box h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #1e3a5f;
+        }
+
+        .schema-table {
+            margin-bottom: 15px;
+        }
+
+        .schema-table strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #111827;
+        }
+
+        .schema-column {
+            padding: 5px 8px;
+            margin-bottom: 2px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            color: #374151;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+
+    <div class="header">
+
+        <h1>AFQIA</h1>
+
+        <p>
+            Android Forensic Query Impact Analysis
+        </p>
+
+    </div>
+
+
+    <!-- Analysis Form -->
+
+    <div class="card">
+
+        <h2>Query Impact Analysis</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <!-- Database Files -->
+
+
+
+            {% if form_error %}
+                <div class="field-error">
+                    ⚠ {{ form_error }}
+                </div>
+            {% endif %}
+
+            <div class="database-row">
+
+                <div class="input-box">
+
+                    <label for="old_db">
+                        Old Database
+                    </label>
+
+                    <input
+                        type="file"
+                        id="old_db"
+                        name="old_db"
+                    >
+                    
+                </div>
+
+
+                <div class="input-box">
+
+                    <label for="new_db">
+                        New Database
+                    </label>
+
+                    <input
+                        type="file"
+                        id="new_db"
+                        name="new_db"
+                    >
+                    
+
+                </div>
+
+            </div>
+
+
+            <!-- SQL Query -->
+
+            <div class="query-section">
+
+                <label for="query">
+                    Forensic SQL Query (Optional)
+                </label>
+
+                <textarea
+                    id="query"
+                    name="query"
+                    placeholder="Enter forensic SQL query here..."
+                    > {{ entered_query or '' }}
+                </textarea>
+
+                
+
+            </div>
+
+
+            <!-- Button -->
+
+            <div class="button-container">
+
+                <button type="submit">
+                    Analyze
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- Analysis Report -->
+
+    {% if report_data %}
+
+    <h2 class="report-title">
+        Analysis Report
+    </h2>
+
+    <!-- Database and Query Information -->
+
+    <div class="report-card">
+
+        <div class="report-section">
+
+            <h3>Database Information</h3>
+
+            <div class="info-grid">
+
+                <div>
+                    <span class="info-label">Old Database</span>
+                    <span class="info-value">
+                        {{ report_data.old_db }}
+                    </span>
+                </div>
+
+                <div>
+                    <span class="info-label">New Database</span>
+                    <span class="info-value">
+                        {{ report_data.new_db }}
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-section">
+
+            <h3>Forensic SQL Query</h3>
+
+            <div class="query-display">
+                {{ report_data.query }}
+            </div>
+
+        </div>
+
+
+        <!-- Schema Changes -->
+
+
+
+        <div class="report-section">
+            <details>
+                <summary>Database Schemas</summary>
+
+                    <div class="schema-container">
+
+                        <div class="schema-box">
+                            <h3>Old Database Schema</h3>
+
+                                {% for table, columns in report_data.old_schema.items() %}
+                                <div class="schema-table">
+                                    <strong>{{ table }}</strong>
+
+                                        {% for column, data_type in columns.items() %}
+                                        <div class="schema-column">
+                                            {{ column }} — {{ data_type }}
+                                        </div>
+                                        {% endfor %}
+                                </div>
+                                {% endfor %}
+                        </div>
+
+                        <div class="schema-box">
+                            <h3>New Database Schema</h3>
+
+                                {% for table, columns in report_data.new_schema.items() %}
+                                <div class="schema-table">
+                                    <strong>{{ table }}</strong>
+
+                                        {% for column, data_type in columns.items() %}
+                                        <div class="schema-column">
+                                            {{ column }} — {{ data_type }}
+                                        </div>
+                                        {% endfor %}
+                                </div>
+                                {% endfor %}
+                        </div>
+
+                    </div>
+            </details>
+        </div>
+
+
+
+
+        <div class="report-section">
+
+            <h3>1. Schema Changes</h3>
+
+            {% if report_data.schema_changes %}
+
+                {% for change in report_data.schema_changes %}
+
+                    <div class="change-item">
+
+                        <strong>
+                            {{ change.type.replace('_', ' ').title() }}
+                        </strong>
+
+                        <span>
+                            Table: {{ change.table }}
+                        </span>
+
+                        {% if change.column %}
+                            <span>
+                                Column: {{ change.column }}
+                            </span>
+                        {% endif %}
+
+                        {% if change.old_type %}
+                            <span>
+                                Type: {{ change.old_type }}
+                                → {{ change.new_type }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="no-data">
+                    No schema changes detected.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if report_data.query %}
+
+        <!-- Query Dependencies -->
+
+        <div class="report-section">
+
+            <h3>2. Query Dependencies</h3>
+
+            <div class="dependency-grid">
+
+                <div>
+
+                    <span class="info-label">
+                        Tables Used
+                    </span>
+
+                    <ul>
+                        {% for table in report_data.tables %}
+                            <li>{{ table }}</li>
+                        {% endfor %}
+                    </ul>
+
+                </div>
+
+
+                <div>
+
+                    <span class="info-label">
+                        Columns Used
+                    </span>
+
+                    <ul>
+                        {% for column in report_data.columns %}
+                            <li>{{ column }}</li>
+                        {% endfor %}
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Query Impact -->
+
+        <div class="report-section">
+
+            <h3>3. Query Impact</h3>
+
+            <div class="result-box
+                {% if report_data.affected %}
+                    affected
+                {% else %}
+                    not-affected
+                {% endif %}
+            ">
+
+                <span class="result-label">
+                    Query Affected
+                </span>
+
+                <span class="result-value">
+
+                    {% if report_data.affected %}
+                        YES
+                    {% else %}
+                        NO
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+            <p>
+                {{ report_data.impact_reason }}
+            </p>
+
+        </div>
+
+
+        <!-- Execution Status -->
+
+        <div class="report-section">
+
+            <h3>4. Query Execution</h3>
+
+            <div class="status-box
+                {% if report_data.execution_status == 'WILL FAIL' %}
+                    fail
+                {% elif report_data.execution_status == 'REQUIRES REVIEW' %}
+                    review
+                {% else %}
+                    success
+                {% endif %}
+            ">
+
+                <span class="status-label">
+                    Execution Status
+                </span>
+
+                <span class="status-value">
+                    {{ report_data.execution_status }}
+                </span>
+
+            </div>
+
+            <p>
+                {{ report_data.execution_reason }}
+            </p>
+
+        </div>
+
+
+        <!-- Affected Elements -->
+
+        <div class="report-section">
+
+            <h3>5. Affected Query Elements</h3>
+
+            {% if report_data.affected_elements %}
+
+                <div class="element-list">
+
+                    {% for element in report_data.affected_elements %}
+
+                        <span class="element">
+                            {{ element }}
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p class="no-data">
+                    None
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- Analysis Result -->
+
+        <div class="report-section final-section">
+
+            <h3>6. Analysis Result</h3>
+
+            <div class="final-result">
+
+                {{ report_data.analysis_result }}
+
+            </div>
+
+        </div>
+        {% endif %}
+
+    </div>
+
+
+{% endif %}
+
+
+    <!-- Footer -->
+
+    <div class="footer">
+
+        AFQIA — Android Forensic Query Impact Analysis
+
+    </div>
+
+</div>
+
+</body>
+</html>

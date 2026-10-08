@@ -116,3 +116,23 @@ def generate_report(result, old_db, new_db, query):
     report.append(result["analysis_result"])
 
     return "\n".join(report)
+
+
+def generate_report_data(result, old_db, new_db, query):
+    return {
+        "old_db": old_db,
+        "new_db": new_db,
+        "query": query,
+        "old_schema": result["old_schema"],
+        "new_schema": result["new_schema"],
+        "schema_changes": result["schema_changes"],
+        "tables": result["tables"],
+        "columns": result["columns"],
+        "affected": result["affected"],
+        "impact_reason": result["impact_reason"],
+        "execution_status": result["execution_status"],
+        "execution_reason": result["execution_reason"],
+        "affected_elements": result["affected_elements"],
+        "analysis_result": result["analysis_result"]
+        
+    }

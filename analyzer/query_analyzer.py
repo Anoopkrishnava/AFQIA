@@ -1,4 +1,22 @@
 import re
+import sqlite3
+
+
+
+def validate_query(db_path, query):
+    try:
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("EXPLAIN " + query)
+
+        connection.close()
+
+        return True, None
+
+    except sqlite3.Error as error:
+        return False, str(error)
+
 
 
 def analyze_query(query):

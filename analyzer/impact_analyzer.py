@@ -76,24 +76,49 @@ def analyze_database_query(old_db, new_db, query):
 
     changes = compare_schemas(old_schema, new_schema)
 
+    # Schema-only analysis when no query is provided
+    if not query:
+        return {
+            "old_schema": old_schema,
+            "new_schema": new_schema,
+            "schema_changes": changes,
+            "tables": [],
+            "columns": [],
+            "affected": False,
+            "impact_reason": "",
+            "execution_status": "",
+            "execution_reason": "",
+            "affected_elements": [],
+            "analysis_result": ""
+        }
+
+    # Query impact analysis when a query is provided
     result = analyze_query_impact(query, changes)
 
     result["schema_changes"] = changes
 
-    result["impact_reason"] = get_impact_reason(result["impacted_changes"])
+    result["impact_reason"] = get_impact_reason(
+        result["impacted_changes"]
+    )
 
     result["execution_status"] = get_execution_status(
         result["impacted_changes"]
     )
+
     result["execution_reason"] = get_execution_reason(
         result["impacted_changes"]
     )
+
     result["affected_elements"] = get_affected_elements(
         result["impacted_changes"]
     )
+
     result["analysis_result"] = get_analysis_result(
         result["impacted_changes"]
     )
+
+    result["old_schema"] = old_schema
+    result["new_schema"] = new_schema
 
     return result
 
