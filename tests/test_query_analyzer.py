@@ -2,7 +2,7 @@ from analyzer.query_analyzer import (
     analyze_query,
     check_query_impact,
     get_execution_risk,
-    analyze_query_impact
+    analyze_query_impact,    
 )
 
 def test_select_query():
@@ -381,4 +381,3 @@ def test_query_with_multiple_schema_changes():
 
     assert result["affected"] is True
     
-

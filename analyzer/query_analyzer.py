@@ -149,6 +149,7 @@ def check_query_impact(query, changes):
                 if change["table"] == table:
                     impacted.append(change)
 
+                        
             # Column-related changes
             elif change["table"] == table:
 
@@ -171,6 +172,7 @@ def check_query_impact(query, changes):
                         re.IGNORECASE
                     ):
                         impacted.append(change)
+
 
     return impacted
     

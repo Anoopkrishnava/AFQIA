@@ -133,6 +133,10 @@ def generate_report_data(result, old_db, new_db, query):
         "execution_status": result["execution_status"],
         "execution_reason": result["execution_reason"],
         "affected_elements": result["affected_elements"],
-        "analysis_result": result["analysis_result"]
+        "analysis_result": result["analysis_result"],
+        "evidence_completeness_warning": result.get(
+            "evidence_completeness_warning",
+            ""
+        ),
         
     }

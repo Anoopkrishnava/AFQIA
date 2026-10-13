@@ -1,12 +1,16 @@
 import sqlite3
+import os
 
-connection = sqlite3.connect(
-    "test_data/database_v2_removed_table.db"
-)
+db_path = "test_data/database_v2_removed_table.db"
 
+# Recreate the test database from scratch
+if os.path.exists(db_path):
+    os.remove(db_path)
+
+connection = sqlite3.connect(db_path)
 cursor = connection.cursor()
 
-# Only the messages table exists in V2
+# Keep messages in V2, but remove users
 cursor.execute("""
 CREATE TABLE messages (
     id INTEGER PRIMARY KEY,

@@ -282,18 +282,20 @@
 
         .element-list {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 10px;
+            margin-top: 12px;
         }
 
         .element {
-            background-color: #eff6ff;
-            color: #1d4ed8;
-            border: 1px solid #bfdbfe;
-            padding: 7px 12px;
+            display: block;
+            padding: 12px 15px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #64748b;
             border-radius: 6px;
-            font-family: monospace;
-            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
         }
 
         .no-data {
@@ -422,6 +424,24 @@
             border-bottom: 1px solid #e5e7eb;
             font-size: 13px;
             color: #374151;
+        }
+        .report-description {
+            margin-top: 16px;
+            padding: 15px;
+            border-left: 4px solid #64748b;
+            background-color: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .report-description strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        .report-description p {
+            margin: 0;
+            line-height: 1.7;
         }
 
     </style>
@@ -749,9 +769,10 @@
 
             </div>
 
-            <p>
-                {{ report_data.impact_reason }}
-            </p>
+            <div class="report-description">
+                <strong>Impact Explanation</strong>
+                <p>{{ report_data.impact_reason }}</p>
+            </div>
 
         </div>
 
@@ -782,12 +803,12 @@
 
             </div>
 
-            <p>
-                {{ report_data.execution_reason }}
-            </p>
+            <div class="report-description">
+                <strong>Execution Explanation</strong>
+                <p>{{ report_data.execution_reason }}</p>
+            </div>
 
         </div>
-
 
         <!-- Affected Elements -->
 
@@ -801,9 +822,9 @@
 
                     {% for element in report_data.affected_elements %}
 
-                        <span class="element">
-                            {{ element }}
-                        </span>
+                    <div class="element">
+                        {{ element }}
+                    </div>
 
                     {% endfor %}
 
@@ -820,6 +841,7 @@
         </div>
 
 
+        
         <!-- Analysis Result -->
 
         <div class="report-section final-section">
@@ -828,12 +850,34 @@
 
             <div class="final-result">
 
-                {{ report_data.analysis_result }}
+                <strong>Recommended Action</strong>
+
+                <p>{{ report_data.analysis_result }}</p>
+
+                <p class="manual-action-note">
+                    AFQIA does not modify the original SQL query.
+                    The forensic analyst must review the schema changes
+                    and make any necessary query modifications manually.
+                </p>
 
             </div>
 
         </div>
+
+        <!-- Evidence Completeness Review -->
+
+        <div class="report-section">
+
+            <h3>7. Evidence Completeness Review</h3>
+
+            <div class="report-description">
+                <p>{{ report_data.evidence_completeness_warning }}</p>
+            </div>
+
+        </div>
+
         {% endif %}
+
 
     </div>
 
