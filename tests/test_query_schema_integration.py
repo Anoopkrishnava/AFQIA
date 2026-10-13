@@ -33,3 +33,43 @@ def test_query_schema_impact():
         "column": "message"
     } in impacted
     
+
+def test_query_impact_when_column_is_renamed():
+    schema_v1 = {
+        "messages": {
+            "id": "INTEGER",
+            "sender": "TEXT",
+            "message": "TEXT"
+        }
+    }
+
+    schema_v2 = {
+        "messages": {
+            "id": "INTEGER",
+            "sender": "TEXT",
+            "content": "TEXT"
+        }
+    }
+
+    changes = compare_schemas(
+        schema_v1,
+        schema_v2
+    )
+
+    query = """
+    SELECT message
+    FROM messages;
+    """
+
+    impacted = check_query_impact(
+        query,
+        changes
+    )
+
+    assert {
+        "type": "removed_column",
+        "table": "messages",
+        "column": "message"
+    } in impacted
+
+    
